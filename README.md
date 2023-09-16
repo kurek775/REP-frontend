@@ -1,4 +1,7 @@
 # REP-frontend
 
 ## Mock server
-### npx node .\src\server.js
+### npx nodemon .\src\server.js
+
+## Run
+### npm run dev

@@ -1,10 +1,20 @@
-const express = require('express');
-
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
+app.use(
+  cors()
+);
+app.get("/api/user/:id", (req, res) => {
 
-app.get('/', (req, res) => {
-  res.send('Express + TypeScript Server');
+  res.send({
+    id: req.params.id,
+    name: "John Doeeee",
+    email: "mock@sss",
+    password: "123456",
+    role: "coach",
+    coach_id: null,
+  });
 });
 
 app.listen(5000, () => {
