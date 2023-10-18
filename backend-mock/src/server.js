@@ -1,88 +1,44 @@
 const express = require("express");
 const cors = require("cors");
-
+const path = require("path");
+const createScripts = require("./createScripts.js");
+const inserScripts = require("./insertScripts.js");
+const userController = require("./controllers/userController.js");
+const usersController = require("./controllers/usersController.js");
 const app = express();
-app.use(
-  cors()
-);
-app.get("/api/user/:id", (req, res) => {
-
-  res.send({
-    id: req.params.id,
-    name: "John Doeeee",
-    email: "mock@sss",
-    password: "123456",
-    role: "coach",
-    coach_id: null,
-  });
+app.use(cors());
+const { Client } = require("pg");
+require("dotenv").config();
+const client = new Client({
+  host: "localhost",
+  port: 5432,
+  user: "postgres",
+  password: "docker",
+  database: "mydb",
 });
 
-app.post("/api/user/:id", (req, res) => {
-  console.log(req.body);
-  res.send({
-    result: "success",
-  });
+client.query(createScripts.CreateTableUsers, function (err, result) {
+  if (err) throw err;
+  console.log(result.rows);
 });
 
-app.put("/api/user/:id", (req, res) => {
-  console.log(req.body);
-  res.send({
-    result: "success",
-  });
+app.get("/api/user/:id", function (req, res) {
+  userController.get(req, res, client);
 });
 
-app.delete("/api/user/:id", (req, res) => {
-  console.log(req.body);
-  res.send({
-    result: "success",
-  });
-});
+app.post("/api/user/:id", userController.post);
 
-app.get("/api/athletes/:coachId", (req, res) => {
+app.put("/api/user/:id", userController.put);
 
-  res.send([
-    {
-      id: req.params.id,
-      name: "GOOD BOY",
-      email: "mock@sss",
-      password: "123456",
-      role: "athlete",
-      coach_id: req.params.coachId,
-    },
-    {
-      id: req.params.id,
-      name: "BAAD PERSON",
-      email: "mock@sss",
-      password: "123456",
-      role: "athlete",
-      coach_id: req.params.coachId,
-    }
-  ]);
-});
+app.delete("/api/user/:id", userController.delete);
 
-app.get("/api/athletes/:coachId", (req, res) => {
-
-  res.send([
-    {
-      id: 1,
-      name: "GOOD BOY",
-      email: "mock@sss",
-      password: "123456",
-      role: "athlete",
-      coach_id: req.params.coachId,
-    },
-    {
-      id: 2,
-      name: "BAAD PERSON",
-      email: "mock@sss",
-      password: "123456",
-      role: "athlete",
-      coach_id: req.params.coachId,
-    }
-  ]);
-});
+app.get("/api/users/:role", usersController.get);
 
 const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+client.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected!");
+  app.listen(port, () => {
+    console.log(`[server]: Server is running at http://localhost:${port}`);
+  });
 });
